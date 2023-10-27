@@ -1,36 +1,30 @@
 #!/usr/bin/python3
-""" Flask API """
-from os import getenv
-from flask import Flask, jsonify
+"""
+flask app for the AirBnB project
+"""
+
+from flask import Flask, make_response, jsonify
 from models import storage
-from api.v1.views import app_views
+from api.v1.views.__init__ import app_views
+from os import getenv
 
 
 app = Flask(__name__)
-""" Creates Flask instant """
-app_host = getenv('HBNB_API_HOST', '0.0.0.0')
-app_port = int(getenv('HBNB_API_PORT', '5000'))
-app.url_map.strict_slashes = False
-app.register_blueprint(app_views)
+app.register_blueprint(app_views, url_prefix="/api/v1")
 
 
 @app.teardown_appcontext
-def teardown_flask(exception):
-    """ Calls storage.close() """
+def teardown_db(exception):
+    """closes storage"""
     storage.close()
 
 
 @app.errorhandler(404)
-def error_404(error):
-    """ Handles 404 Not Found """
-    return jsonify(error='Not found'), 404
+def not_found(error):
+    return make_response(jsonify({"error": "Not found"}), 404)
 
 
-if __name__ == '__main__':
-    app_host = getenv('HBNB_API_HOST', '0.0.0.0')
-    app_port = int(getenv('HBNB_API_PORT', '5000'))
-    app.run(
-        host=app_host,
-        port=app_port,
-        threaded=True
-    )
+if __name__ == "__main__":
+    port = getenv("HBNB_API_PORT", "5000")
+    host = getenv("HBNB_API_HOST", "0.0.0.0")
+    app.run(host=host, port=port, threaded=True)
