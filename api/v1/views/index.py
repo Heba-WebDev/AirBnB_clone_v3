@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 '''Contains the index view for the API.'''
 from flask import jsonify
-from api.v1.views import app_views
+from api.v1.views.__init__ import app_views
 from models import storage
 
 
