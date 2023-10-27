@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-
-""" Index """
+'''Contains the index view for the API.'''
 from flask import jsonify
 from api.v1.views import app_views
 from models import storage
@@ -14,7 +13,7 @@ def status():
 
 @app_views.route('/stats', methods=['GET'], strict_slashes=False)
 def stat():
-    """ Retrieves the number of each objects by type """
+    """returns the number of each objects by type"""
     return jsonify(
         amenities=storage.count('Amenity'),
         cities=storage.count('City'),
