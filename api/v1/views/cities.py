@@ -11,6 +11,7 @@ cls = City
 
 @app_views.route('/states/<string:state_id>/cities', methods=['GET'], strict_slashes=False)
 def get_cities_by_state(state_id):
+    """Get a list of cities for a specific state"""
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
@@ -21,6 +22,7 @@ def get_cities_by_state(state_id):
 
 @app_views.route('/cities/<string:city_id>', methods=['GET'], strict_slashes=False)
 def get_city(city_id):
+    """ Get a specific city by id"""
     city = storage.get(cls, city_id)
     if city is None:
         abort(404)
@@ -28,6 +30,7 @@ def get_city(city_id):
 
 @app_views.route('/cities/<string:city_id>', methods=['DELETE'], strict_slashes=False)
 def delete_city(city_id):
+    """ Delets a specific city by city_id"""
     city = storage.get(cls, city_id)
     if city is None:
         abort(404)
@@ -37,6 +40,7 @@ def delete_city(city_id):
 
 @app_views.route('/states/<string:state_id>/cities', methods=['POST'], strict_slashes=False)
 def create_city(state_id):
+    """ Create a new city for for a specific state"""
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
@@ -55,6 +59,7 @@ def create_city(state_id):
 
 @app_views.route('/cities/<string:city_id>', methods=['PUT'], strict_slashes=False)
 def update_city(city_id):
+    """ Update a specific city by city_id"""
     city = storage.get(cls, city_id)
     if city is None:
         abort(404)
