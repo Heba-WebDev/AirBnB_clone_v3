@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python4
 '''Contains the states view for the API.'''
 
 from api.v1.views.__init__ import app_views
