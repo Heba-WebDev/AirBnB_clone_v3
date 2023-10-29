@@ -1,4 +1,5 @@
-ontains the cities view for the API.
+#!/usr/bin/python3
+"""Contains the cities view for the API.
 """
 
 from flask import Blueprint, jsonify, request, abort
