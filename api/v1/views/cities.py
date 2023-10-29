@@ -2,12 +2,11 @@
 """Contains the cities view for the API.
 """
 
-from flask import Blueprint, jsonify, request, abort
+from api.v1.views.__init__ import app_views
 from models import storage
 from models.state import State
 from models.city import City
 
-app_views = Blueprint('app_views', __name__, url_prefix='/api/v1')
 cls = City
 
 @app_views.route('/states/<string:state_id>/cities', methods=['GET'], strict_slashes=False)
