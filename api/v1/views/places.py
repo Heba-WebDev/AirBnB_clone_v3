@@ -9,26 +9,35 @@ from models.user import User
 from flask import jsonify, abort, request
 from models import storage
 
-@app_views.route('/cities/<string:city_id>/places', methods=['GET'], strict_slashes=False)
-def get_places_by_city(city_id):
-    """Get a list of places for a specific city"""
+
+@app_views.route("/cities/<string:city_id>/places", methods=["GET"],
+                 strict_slashes=False)
+def get_places(city_id):
+    """Get a list of places for a specific city """
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
+    places = []
+    for place in city.places:
+        places.append(place.to_dict())
+    return jsonify(places)
 
-    places = city.places
-    place_list = [place.to_dict() for place in places]
-    return jsonify(place_list)
 
-@app_views.route('/places/<string:place_id>', methods=['GET'], strict_slashes=False)
-def get_place(place_id):
-    """ Get a specific place by id"""
-    place = storage.get(Place, place_id)
-    if place is None:
+@app_views.route("/places/<string:place_id>", methods=["GET"],
+                 strict_slashes=False)
+def get_place(place_id=None):
+    """ Get a specific place by id """
+    if place_id is not None:
+        obj = storage.get(Place, place_id)
+        if obj is not None:
+            return jsonify(obj.to_dict())
+        else:
+            abort(404)
+    else:
         abort(404)
-    return jsonify(place.to_dict())
 
-@app_views.route('/places/<string:place_id>', methods=['DELETE'], strict_slashes=False)
+
+@app_views.route("/places/<string:place_id>", methods=["DELETE"])
 def delete_place(place_id):
     """ Deletes a specific place by place_id"""
     place = storage.get(Place, place_id)
@@ -36,11 +45,14 @@ def delete_place(place_id):
         abort(404)
     storage.delete(place)
     storage.save()
+    storage.reload()
     return jsonify({})
 
-@app_views.route('/cities/<string:city_id>/places', methods=['POST'], strict_slashes=False)
-def create_place(city_id):
-    """ Create a new place for a specific city"""
+
+@app_views.route("/cities/<string:city_id>/places", methods=["POST"],
+                 strict_slashes=False)
+def create_place(city_id=None):
+    """ Create a new place for a specific city """
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
@@ -62,9 +74,11 @@ def create_place(city_id):
     new_place = Place(name=place_name, user_id=user_id, city_id=city_id)
     storage.new(new_place)
     storage.save()
+    storage.reload()
     return jsonify(new_place.to_dict()), 201
 
-@app_views.route('/places/<string:place_id>', methods=['PUT'], strict_slashes=False)
+
+@app_views.route("/places/<string:place_id>", methods=["PUT"])
 def update_place(place_id):
     """ Update a specific place by place_id"""
     place = storage.get(Place, place_id)
@@ -79,5 +93,7 @@ def update_place(place_id):
         if key not in ('id', 'user_id', 'city_id', 'created_at', 'updated_at'):
             setattr(place, key, value)
 
+    place.save()
     storage.save()
-    return jsonify(place.to_dict())
+    storage.reload()
+    return jsonify(place.to_dict()), 200
