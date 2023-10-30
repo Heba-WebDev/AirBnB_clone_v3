@@ -10,7 +10,9 @@ from models import storage
 
 cls = City
 
-@app_views.route('/states/<string:state_id>/cities', methods=['GET'], strict_slashes=False)
+
+@app_views.route('/states/<string:state_id>/cities', methods=['GET'],
+                 strict_slashes=False)
 def get_cities_by_state(state_id):
     """Get a list of cities for a specific state"""
     state = storage.get(State, state_id)
@@ -21,7 +23,9 @@ def get_cities_by_state(state_id):
     city_list = [city.to_dict() for city in cities]
     return jsonify(city_list)
 
-@app_views.route('/cities/<string:city_id>', methods=['GET'], strict_slashes=False)
+
+@app_views.route('/cities/<string:city_id>', methods=['GET'],
+                 strict_slashes=False)
 def get_city(city_id):
     """ Get a specific city by id"""
     city = storage.get(cls, city_id)
@@ -29,7 +33,9 @@ def get_city(city_id):
         abort(404)
     return jsonify(city.to_dict())
 
-@app_views.route('/cities/<string:city_id>', methods=['DELETE'], strict_slashes=False)
+
+@app_views.route('/cities/<string:city_id>', methods=['DELETE'],
+                 strict_slashes=False)
 def delete_city(city_id):
     """ Delets a specific city by city_id"""
     city = storage.get(cls, city_id)
@@ -39,7 +45,9 @@ def delete_city(city_id):
     storage.save()
     return jsonify({})
 
-@app_views.route('/states/<string:state_id>/cities', methods=['POST'], strict_slashes=False)
+
+@app_views.route('/states/<string:state_id>/cities', methods=['POST'],
+                 strict_slashes=False)
 def create_city(state_id):
     """ Create a new city for for a specific state"""
     state = storage.get(State, state_id)
@@ -58,7 +66,9 @@ def create_city(state_id):
     storage.save()
     return jsonify(new_city.to_dict()), 201
 
-@app_views.route('/cities/<string:city_id>', methods=['PUT'], strict_slashes=False)
+
+@app_views.route('/cities/<string:city_id>', methods=['PUT'],
+                 strict_slashes=False)
 def update_city(city_id):
     """ Update a specific city by city_id"""
     city = storage.get(cls, city_id)
