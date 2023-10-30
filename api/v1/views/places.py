@@ -1,82 +1,78 @@
 #!/usr/bin/python3
-"""Contains the places view for the API.
-"""
-
-from api.v1.views.__init__ import app_views
-from models.city import City
-from models.place import Place
-from models.user import User
-from flask import jsonify, abort, request
+"""create a route /places on the object app_views that returns a JSON"""
+from api.v1.views import app_views
 from models import storage
+from models.place import Place
+from models.city import City
+from flask import jsonify, abort, request
 
-cls = Place
 
-@app_views.route('/api/v1/cities/<string:city_id>/places', methods=['GET'], strict_slashes=False)
-def get_places_by_city(city_id):
-    """Get a list of places for a specific city"""
+@app_views.route("/cities/<city_id>/places", methods=["GET"],
+                 strict_slashes=False)
+def places(city_id):
+    list_places = []
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
+    for place in city.places:
+        list_places.append(place.to_dict())
 
-    places = city.places
-    place_list = [place.to_dict() for place in places]
-    return jsonify(place_list)
+    return jsonify(list_places)
 
-@app_views.route('/api/v1/places/<string:place_id>/place_id', methods=['GET'], strict_slashes=False)
-def get_place(place_id):
-    """ Get a specific place by id"""
-    place = storage.get(cls, place_id)
+
+@app_views.route("/places/<place_id>", methods=["GET"], strict_slashes=False)
+def place_id(place_id):
+    place = storage.get(Place, place_id)
     if place is None:
         abort(404)
     return jsonify(place.to_dict())
 
-@app_views.route('/api/v1/places/<string:place_id>', methods=['DELETE'], strict_slashes=False)
-def delete_place(place_id):
-    """ Deletes a specific place by place_id"""
-    place = storage.get(cls, place_id)
+
+@app_views.route("/places/<place_id>", methods=["DELETE"],
+                 strict_slashes=False)
+def del_place(place_id):
+    place = storage.get(Place, place_id)
     if place is None:
         abort(404)
     storage.delete(place)
     storage.save()
     return jsonify({}), 200
 
-@app_views.route('/api/v1/cities/<string:city_id>/places', methods=['POST'], strict_slashes=False)
+
+@app_views.route("/cities/<city_id>/places", methods=["POST"],
+                 strict_slashes=False)
 def create_place(city_id):
-    """ Create a new place for a specific city"""
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
 
-    data = request.get_json(silent=True)
-    if data is None:
-        abort(400, "Not a JSON")
-    if "user_id" not in data:
-        abort(400, "Missing user_id")
-    user = storage.get(User, data["user_id"])
-    if user is None:
-        abort(404)
-    if "name" not in data:
-        abort(400, "Missing name")
+    response = request.get_json()
+    if response is None:
+        abort(400, description="Not a JSON")
 
-    place_name = data["name"]
-    new_place = cls(name=place_name, user_id=data["user_id"], city_id=city_id)
-    storage.new(new_place)
-    storage.save()
+    if 'name' not in response:
+        abort(400, description="Missing name")
+
+    new_place = Place(**response)
+    new_place.city_id = city.id
+    new_place.save()
+
     return jsonify(new_place.to_dict()), 201
 
-@app_views.route('/api/v1/places/<string:place_id>', methods=['PUT'], strict_slashes=False)
+
+@app_views.route("/places/<place_id>", methods=["PUT"], strict_slashes=False)
 def update_place(place_id):
-    """ Update a specific place by place_id"""
-    place = storage.get(cls, place_id)
+    place = storage.get(Place, place_id)
     if place is None:
         abort(404)
 
-    data = request.get_json(silent=True)
-    if data is None:
-        abort(400, "Not a JSON")
+    response = request.get_json()
+    if response is None:
+        abort(400, description="Not a JSON")
 
-    keys_to_ignore = ('id', 'user_id', 'city_id', 'created_at', 'updated_at')
-    for key, value in data.items():
+    keys_to_ignore = ['id', 'created_at', 'updated_at', 'city_id']
+
+    for key, value in response.items():
         if key not in keys_to_ignore:
             setattr(place, key, value)
 
