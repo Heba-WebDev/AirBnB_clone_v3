@@ -21,12 +21,12 @@ def get_places_by_city(city_id):
     for place in city.places:
         list_places.append(place.to_dict())
 
-    return jsonify(place_list)
+    return jsonify(list_places)
 
-@app_views.route('/api/v1/places/<string:place_id>/place_id', methods=['GET'], strict_slashes=False)
+@app_views.route('/api/v1/places/<string:place_id>', methods=['GET'], strict_slashes=False)
 def get_place(place_id):
     """ Get a specific place by id"""
-    place = storage.get(cls, place_id)
+    place = storage.get(Place, place_id)
     if place is None:
         abort(404)
     return jsonify(place.to_dict())
@@ -71,7 +71,7 @@ def update_place(place_id):
 
     data = request.get_json()
     if data is None:
-        abort(400, "Not a JSON")
+        abort(400, description="Not a JSON")
 
     keys_to_ignore = ['id', 'created_at', 'updated_at', 'city_id']
     for key, value in data.items():
