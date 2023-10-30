@@ -11,3 +11,4 @@ import api.v1.views.index
 import api.v1.views.states
 import api.v1.views.cities
 import api.v1.views.amenities
+import api.v1.views.users
