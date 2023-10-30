@@ -11,7 +11,7 @@ from models import storage
 
 cls = Place
 
-@app_views.route('/api/v1/cities/<city_id>/places', methods=['GET'], strict_slashes=False)
+@app_views.route('/api/v1/cities/<string:city_id>/places', methods=['GET'], strict_slashes=False)
 def get_places_by_city(city_id):
     """Get a list of places for a specific city"""
     city = storage.get(City, city_id)
@@ -22,7 +22,7 @@ def get_places_by_city(city_id):
     place_list = [place.to_dict() for place in places]
     return jsonify(place_list)
 
-@app_views.route('/api/v1/places/<place_id>/place_id', methods=['GET'], strict_slashes=False)
+@app_views.route('/api/v1/places/<string:place_id>/place_id', methods=['GET'], strict_slashes=False)
 def get_place(place_id):
     """ Get a specific place by id"""
     place = storage.get(cls, place_id)
@@ -30,7 +30,7 @@ def get_place(place_id):
         abort(404)
     return jsonify(place.to_dict())
 
-@app_views.route('/api/v1/places/<place_id>', methods=['DELETE'], strict_slashes=False)
+@app_views.route('/api/v1/places/<string:place_id>', methods=['DELETE'], strict_slashes=False)
 def delete_place(place_id):
     """ Deletes a specific place by place_id"""
     place = storage.get(cls, place_id)
@@ -38,9 +38,9 @@ def delete_place(place_id):
         abort(404)
     storage.delete(place)
     storage.save()
-    return jsonify({})
+    return jsonify({}), 200
 
-@app_views.route('/api/v1/cities/<city_id>/places', methods=['POST'], strict_slashes=False)
+@app_views.route('/api/v1/cities/<string:city_id>/places', methods=['POST'], strict_slashes=False)
 def create_place(city_id):
     """ Create a new place for a specific city"""
     city = storage.get(City, city_id)
@@ -64,7 +64,7 @@ def create_place(city_id):
     storage.save()
     return jsonify(new_place.to_dict()), 201
 
-@app_views.route('/api/v1/places/<place_id>', methods=['PUT'], strict_slashes=False)
+@app_views.route('/api/v1/places/<string:place_id>', methods=['PUT'], strict_slashes=False)
 def update_place(place_id):
     """ Update a specific place by place_id"""
     place = storage.get(cls, place_id)
@@ -75,8 +75,9 @@ def update_place(place_id):
     if data is None:
         abort(400, "Not a JSON")
 
+    keys_to_ignore = ('id', 'user_id', 'city_id', 'created_at', 'updated_at')
     for key, value in data.items():
-        if key not in ('id', 'user_id', 'city_id', 'created_at', 'updated_at'):
+        if key not in keys_to_ignore:
             setattr(place, key, value)
 
     storage.save()
